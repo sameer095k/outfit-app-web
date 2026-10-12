@@ -502,17 +502,9 @@ async function renderCloset(){
   const counts={}; items.forEach(it=>counts[it.section]=(counts[it.section]||0)+1);
   if(!S.zone){
     v.classList.add("locked");
-    const chips=SECTIONS.map(s=>
-      `<button class="chip sm${S.hiddenSecs.has(s.key)?"":" on"}" data-chip="${s.key}">${esc(s.label)}</button>`).join("");
     v.innerHTML=`
-      <div class="chips" style="margin-top:0">${chips}</div>
       <div class="roomwrap">${closetSVG(counts)}</div>
       <button class="fab" id="add-first" aria-label="Add a piece">＋</button>`;
-    v.querySelectorAll("[data-chip]").forEach(b=>b.addEventListener("click",()=>{
-      const k=b.dataset.chip;
-      S.hiddenSecs.has(k)?S.hiddenSecs.delete(k):S.hiddenSecs.add(k);
-      saveHidden(); renderCloset();
-    }));
     v.querySelectorAll(".zone[data-sec]").forEach(z=>z.addEventListener("click",()=>{
       S.zone=z.dataset.sec; S.zoneTagFilter={color:null,fabric:null,vibe:null}; renderCloset();
     }));
