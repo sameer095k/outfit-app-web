@@ -473,6 +473,15 @@ function svgHeel(x,y,s,c){
     <polygon points="${x},${y} ${x+52*s},${y} ${x+58*s},${y-11*s} ${x+38*s},${y-26*s} ${x+12*s},${y-22*s}" fill="${c}" stroke="${INKc}" stroke-width="3" stroke-linejoin="round"/>
     <line x1="${x}" y1="${y}" x2="${x+52*s}" y2="${y}" stroke="${INKc}" stroke-width="3"/></g>`;
 }
+function svgSneaker(x,y,s,c){
+  const X=v=>(x+v*s).toFixed(1), Y=v=>(y-v*s).toFixed(1);
+  return `<g>
+    <path d="M ${X(4)} ${Y(7)} L ${X(7)} ${Y(17)} Q ${X(8)} ${Y(21)} ${X(12)} ${Y(20)} L ${X(18)} ${Y(17)} L ${X(38)} ${Y(9)} Q ${X(46)} ${Y(6)} ${X(47)} ${Y(7)} Z" fill="${c}" stroke="${INKc}" stroke-width="2.5" stroke-linejoin="round"/>
+    <rect x="${X(0)}" y="${Y(7)}" width="${(52*s).toFixed(1)}" height="${(7*s).toFixed(1)}" rx="${(3.5*s).toFixed(1)}" fill="#f5f0e6" stroke="${INKc}" stroke-width="2.5"/>
+    <line x1="${X(22)}" y1="${Y(16.5)}" x2="${X(25.5)}" y2="${Y(13.5)}" stroke="${INKc}" stroke-width="1.8"/>
+    <line x1="${X(27.5)}" y1="${Y(14.5)}" x2="${X(31)}" y2="${Y(11.5)}" stroke="${INKc}" stroke-width="1.8"/>
+    <line x1="${X(33)}" y1="${Y(12.5)}" x2="${X(36.5)}" y2="${Y(9.5)}" stroke="${INKc}" stroke-width="1.8"/></g>`;
+}
 function closetSVG(counts){
   const hid=k=>S.hiddenSecs.has(k)?' class="zone hidden-sec"':' class="zone"';
   const n=k=>counts[k]||0;
@@ -525,8 +534,8 @@ function closetSVG(counts){
     <rect x="360" y="576" width="10" height="58" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/>
     <rect x="34" y="584" width="332" height="9" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/>
     <rect x="34" y="612" width="332" height="9" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/>
-    ${svgHeel(56,576,0.8,"#2b2b2b")}${svgFlat(136,576,0.8,"#d49a94")}${svgHeel(216,576,0.8,"#3d4e6d")}${svgFlat(296,576,0.8,"#8a8b5c")}
-    ${svgHeel(76,604,0.8,"#d9b98f")}${svgFlat(156,604,0.8,"#2b2b2b")}${svgHeel(236,604,0.8,"#d49a94")}${svgFlat(316,604,0.8,"#3d4e6d")}</g>
+    ${svgHeel(50,576,0.8,"#2b2b2b")}${svgSneaker(124,576,0.8,"#d49a94")}${svgFlat(200,576,0.8,"#3d4e6d")}${svgHeel(272,576,0.8,"#8a8b5c")}
+    ${svgSneaker(60,604,0.8,"#2b2b2b")}${svgFlat(134,604,0.8,"#d9b98f")}${svgHeel(208,604,0.8,"#d49a94")}${svgSneaker(282,604,0.8,"#3d4e6d")}</g>
   ${P.join("")}
   </svg>`;
 }
