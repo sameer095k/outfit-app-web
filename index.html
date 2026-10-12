@@ -459,11 +459,6 @@ function svgClutch(x,y,w,h,c){
     <line x1="${x+12}" y1="${y+13}" x2="${x+w-12}" y2="${y+13}" stroke="${INKc}" stroke-width="2.5"/>
     <circle cx="${x+w/2}" cy="${y+13}" r="4" fill="${INKc}"/></g>`;
 }
-function svgPants(x,y,w,h,c){return `<g><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="7" fill="${c}" stroke="${INKc}" stroke-width="3"/><line x1="${x+7}" y1="${y+15}" x2="${x+w-7}" y2="${y+15}" stroke="${INKc}" stroke-width="2.5"/><line x1="${x+w/2}" y1="${y+15}" x2="${x+w/2}" y2="${y+h-5}" stroke="${INKc}" stroke-width="2.5"/></g>`;}
-function svgSkirt(x,y,w,h,c){
-  return `<g><rect x="${x}" y="${y}" width="${w}" height="14" rx="5" fill="${c}" stroke="${INKc}" stroke-width="3"/>
-    <polygon points="${x},${y+12} ${x+w},${y+12} ${x+w+13},${y+h} ${x-13},${y+h}" fill="${c}" stroke="${INKc}" stroke-width="3" stroke-linejoin="round"/></g>`;
-}
 function svgFlat(x,y,s,c){
   return `<g><polygon points="${x},${y} ${x+52*s},${y} ${x+58*s},${y-11*s} ${x+40*s},${y-17*s} ${x+14*s},${y-15*s} ${x+4*s},${y-8*s}" fill="${c}" stroke="${INKc}" stroke-width="3" stroke-linejoin="round"/>
     <polygon points="${x+44*s},${y-13*s} ${x+50*s},${y-9*s} ${x+44*s},${y-5*s} ${x+38*s},${y-9*s}" fill="${INKc}"/></g>`;
@@ -487,15 +482,15 @@ function closetSVG(counts){
   const n=k=>counts[k]||0;
   // pills collected separately and painted last so illustration never covers them
   const P=[];
-  const pill=(cx,y,label)=>P.push(`<g class="zlabel"><rect x="${cx-52}" y="${y}" width="104" height="24" rx="12" fill="#fffdf6" stroke="${INKc}" stroke-width="2.5"/><text x="${cx}" y="${y+17}" text-anchor="middle" font-size="12.5" font-weight="800" fill="${INKc}" font-family="inherit">${label}</text></g>`);
+  const pill=(cx,y,label)=>P.push(`<g class="zlabel" style="pointer-events:none"><rect x="${cx-52}" y="${y}" width="104" height="24" rx="12" fill="#fffdf6" stroke="${INKc}" stroke-width="2.5"/><text x="${cx}" y="${y+17}" text-anchor="middle" font-size="12.5" font-weight="800" fill="${INKc}" font-family="inherit">${label}</text></g>`);
   pill(200,94,"BAGS · "+n("bags"));
   pill(101,278,"TOPS · "+n("tops"));
   pill(239,298,"JACKETS · "+n("jackets"));
   pill(338,344,"DRESSES · "+n("dresses"));
-  pill(102,490,"BOTTOMS · "+n("bottoms"));
-  pill(293,422,"HIJAB · "+n("hijab"));
-  pill(305,548,"JEWELRY · "+n("jewelry"));
-  pill(110,520,"SHOES · "+n("shoes"));
+  pill(200,389,"HIJAB · "+n("hijab"));
+  pill(200,447,"BOTTOMS · "+n("bottoms"));
+  pill(200,505,"JEWELRY · "+n("jewelry"));
+  pill(200,552,"SHOES · "+n("shoes"));
   return `<svg id="closet-svg" viewBox="0 0 400 660" role="img" aria-label="Walk-in closet">
   <rect x="14" y="14" width="372" height="632" rx="22" fill="#efe6d4" stroke="${INKc}" stroke-width="3.5"/>
   <rect x="14" y="470" width="372" height="176" rx="0" fill="#e3d5bc"/>
@@ -511,23 +506,23 @@ function closetSVG(counts){
     ${svgSideGarment(204,184,22,102,"#8a8b5c","jacket")}${svgSideGarment(240,184,22,102,"#2b2b2b","jacket")}</g>
   <g data-sec="dresses"${hid("dresses")}><rect class="zonehit" x="290" y="134" width="96" height="216" fill="transparent"/>
     ${svgSideGarment(306,184,20,150,"#d49a94","dress")}${svgSideGarment(340,184,20,150,"#c96f4a","dress")}</g>
-  <!-- BOTTOMS -->
-  <g data-sec="bottoms"${hid("bottoms")}><rect class="zonehit" x="14" y="350" width="176" height="180" fill="transparent"/>
-    ${svgPants(40,370,56,110,"#2b2b2b")}${svgSkirt(106,370,60,110,"#3d4e6d")}</g>
-  <!-- HIJAB -->
-  <g data-sec="hijab"${hid("hijab")}><rect class="zonehit" x="200" y="350" width="186" height="100" fill="transparent"/>
-    <rect x="240" y="396" width="104" height="18" rx="6" fill="#a3b18a" stroke="${INKc}" stroke-width="2.5"/>
-    <rect x="246" y="378" width="92" height="18" rx="6" fill="#d49a94" stroke="${INKc}" stroke-width="2.5"/>
-    <rect x="252" y="360" width="80" height="18" rx="6" fill="#d9b98f" stroke="${INKc}" stroke-width="2.5"/></g>
-  <!-- JEWELRY BOX -->
-  <g data-sec="jewelry"${hid("jewelry")}><rect class="zonehit" x="200" y="450" width="186" height="114" fill="transparent"/>
-    <polygon points="236,492 324,492 312,456 248,456" fill="#b9838a" stroke="${INKc}" stroke-width="3" stroke-linejoin="round"/>
-    <rect x="228" y="490" width="104" height="50" rx="10" fill="#d49a94" stroke="${INKc}" stroke-width="3"/>
-    <ellipse cx="280" cy="492" rx="46" ry="8" fill="#7d565c" stroke="${INKc}" stroke-width="2.5"/>
-    <circle cx="258" cy="486" r="6.5" fill="none" stroke="${INKc}" stroke-width="3"/>
-    <circle cx="302" cy="486" r="6.5" fill="none" stroke="${INKc}" stroke-width="3"/>
-    <polygon points="280,482 286,488 280,494 274,488" fill="#d9b98f" stroke="${INKc}" stroke-width="2.5" stroke-linejoin="round"/>
-    <rect x="274" y="532" width="12" height="9" rx="3" fill="${INKc}"/></g>
+  <!-- DRESSER: hijab + bottoms + jewelry in three tiers -->
+  <rect x="28" y="356" width="344" height="14" rx="4" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/>
+  <rect x="36" y="370" width="328" height="176" rx="8" fill="#dfc9a4" stroke="${INKc}" stroke-width="3"/>
+  <g data-sec="hijab"${hid("hijab")}><rect class="zonehit" x="36" y="356" width="328" height="76" fill="transparent"/>
+    <rect x="48" y="378" width="304" height="46" rx="6" fill="#f4e9d2" stroke="${INKc}" stroke-width="2.5"/>
+    <circle cx="118" cy="401" r="5.5" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/>
+    <circle cx="282" cy="401" r="5.5" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/></g>
+  <g data-sec="bottoms"${hid("bottoms")}><rect class="zonehit" x="36" y="432" width="328" height="58" fill="transparent"/>
+    <rect x="48" y="436" width="304" height="46" rx="6" fill="#f4e9d2" stroke="${INKc}" stroke-width="2.5"/>
+    <circle cx="118" cy="459" r="5.5" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/>
+    <circle cx="282" cy="459" r="5.5" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/></g>
+  <g data-sec="jewelry"${hid("jewelry")}><rect class="zonehit" x="36" y="490" width="328" height="56" fill="transparent"/>
+    <rect x="48" y="494" width="304" height="46" rx="6" fill="#f4e9d2" stroke="${INKc}" stroke-width="2.5"/>
+    <circle cx="118" cy="517" r="5.5" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/>
+    <circle cx="282" cy="517" r="5.5" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/></g>
+  <rect x="56" y="546" width="16" height="12" rx="3" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/>
+  <rect x="328" y="546" width="16" height="12" rx="3" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/>
   <!-- SHOE RACK -->
   <g data-sec="shoes"${hid("shoes")}><rect class="zonehit" x="14" y="564" width="372" height="82" fill="transparent"/>
     <rect x="30" y="576" width="10" height="58" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/>
