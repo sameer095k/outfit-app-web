@@ -53,6 +53,13 @@ body{
   display:block; width:100%; text-align:left; padding:16px; font-size:17px;
   background:none; border:none; color:var(--ink); cursor:pointer;
 }
+.loginwrap{ min-height:100dvh; display:flex; align-items:center; justify-content:center; padding:24px; box-sizing:border-box; }
+.logincard{ width:100%; max-width:340px; background:#fffdf6; border:2.5px solid var(--ink); border-radius:20px; padding:28px 24px; text-align:center; box-shadow:0 8px 24px rgba(58,48,38,.12); }
+.logincard h2{ margin:0 0 4px; font-size:24px; }
+.logincard p{ margin:0 0 18px; opacity:.65; font-size:14px; }
+.logincard input{ width:100%; box-sizing:border-box; margin:0 0 10px; padding:12px 14px; font-size:16px; border:2px solid var(--ink); border-radius:12px; background:#fff; font-family:inherit; }
+#login-err{ min-height:20px; color:#a83a3a; font-size:13px; font-weight:600; margin-bottom:6px; }
+#login-go{ width:100%; padding:13px; font-size:16px; font-weight:800; color:#fffdf6; background:var(--ink); border:none; border-radius:12px; cursor:pointer; font-family:inherit; }
 /* views */
 #views{flex:1 1 auto; overflow:hidden; position:relative;}
 .view{position:absolute; inset:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
@@ -249,7 +256,7 @@ h2.sec{font-size:22px; margin:18px 4px 10px;}
     <h1 id="topbar-title">My Closet</h1>
     <button id="menu-btn" aria-label="Menu">⋯</button>
   </header>
-  <div id="menu-pop"><button id="export-btn">⬇ Export backup</button></div>
+  <div id="menu-pop"><button id="export-btn">⬇ Export backup</button><button id="logout-btn">Log out</button></div>
   <main id="views">
     <section id="view-closet" class="view active"></section>
     <section id="view-fits" class="view"></section>
@@ -287,43 +294,59 @@ const COMPOSITE_ORDER = ["hijab","tops","dresses","bottoms","shoes","bags","jewe
 const SINGULAR = {bags:"Bag",tops:"Top",bottoms:"Bottom",dresses:"Dress",shoes:"Shoe",jackets:"Jacket",jewelry:"Piece",hijab:"Hijab"};
 const secOf = k => SECTIONS.find(s=>s.key===k);
 
-/* ================= IndexedDB ================= */
-const DB = { db:null };
-function reqp(r){ return new Promise((res,rej)=>{ r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error); }); }
-function txDone(t){ return new Promise((res,rej)=>{ t.oncomplete=()=>res(); t.onerror=()=>rej(t.error); t.onabort=()=>rej(t.error); }); }
-async function dbOpen(){
-  if (DB.db) return;
-  await new Promise((res,rej)=>{
-    const r = indexedDB.open("outfit-app", 1);
-    r.onupgradeneeded = e => {
-      const d = e.target.result;
-      d.createObjectStore("items",{keyPath:"id"});
-      d.createObjectStore("fits",{keyPath:"id"});
-      d.createObjectStore("slots",{keyPath:"slotId"});
-    };
-    r.onsuccess = e => { DB.db = e.target.result; res(); };
-    r.onerror = e => rej(e.target.error);
-  });
+/* ================= Cloud API (replaces IndexedDB) ================= */
+const API = "https://abeerscloset.sameersapp.workers.dev";
+async function apiReq(path, opts = {}) {
+  const r = await fetch(API + path, { credentials: "include", ...opts });
+  if (r.status === 401) { showLogin(); throw new Error("auth"); }
+  if (!r.ok) throw new Error("api " + r.status);
+  const ct = r.headers.get("Content-Type") || "";
+  return ct.includes("json") ? r.json() : r;
 }
-async function dbAll(store){
-  const t = DB.db.transaction(store,"readonly");
-  const out = await reqp(t.objectStore(store).getAll());
-  await txDone(t); return out;
+const mapItem = (it) => (it ? { ...it, full: it.photo, thumb: it.thumb } : it);
+async function dbOpen() { /* session checked at boot */ }
+async function dbAll(store) {
+  if (store === "items") return (await apiReq("/api/items")).items.map(mapItem);
+  if (store === "fits") return (await apiReq("/api/fits")).fits;
+  if (store === "slots") return (await apiReq("/api/slots")).slots;
+  return [];
 }
-async function dbGet(store,key){
-  const t = DB.db.transaction(store,"readonly");
-  const out = await reqp(t.objectStore(store).get(key));
-  await txDone(t); return out;
+async function dbGet(store, key) {
+  if (store === "items")
+    return mapItem((await apiReq("/api/items/" + encodeURIComponent(key))).item);
+  if (store === "fits")
+    return (await apiReq("/api/fits/" + encodeURIComponent(key))).fit;
 }
-async function dbPut(store,val){
-  const t = DB.db.transaction(store,"readwrite");
-  t.objectStore(store).put(val);
-  await txDone(t);
+async function dbPut(store, val) {
+  if (store === "items") {
+    const { full, thumb, photo, ...meta } = val;
+    await apiReq("/api/items/" + encodeURIComponent(val.id), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(meta),
+    });
+    const fd = new FormData();
+    let up = false;
+    if (full instanceof Blob) { fd.append("full", full, "full.jpg"); up = true; }
+    if (thumb instanceof Blob) { fd.append("thumb", thumb, "thumb.jpg"); up = true; }
+    if (up) await apiReq("/api/items/" + encodeURIComponent(val.id) + "/photo", { method: "POST", body: fd });
+  } else if (store === "fits") {
+    await apiReq("/api/fits/" + encodeURIComponent(val.id), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(val),
+    });
+  } else if (store === "slots") {
+    await apiReq("/api/slots/" + encodeURIComponent(val.slotId), {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ fitId: val.fitId }),
+    });
+  }
 }
-async function dbDel(store,key){
-  const t = DB.db.transaction(store,"readwrite");
-  t.objectStore(store).delete(key);
-  await txDone(t);
+async function dbDel(store, key) {
+  const p = store === "items" ? "/api/items/" : store === "fits" ? "/api/fits/" : "/api/slots/";
+  await apiReq(p + encodeURIComponent(key), { method: "DELETE" });
 }
 
 /* ================= Utils ================= */
@@ -350,6 +373,8 @@ function toast(msg){
 /* object URLs for blobs */
 let urlCache=[];
 function burl(blob){
+  if(!blob) return "";
+  if(typeof blob==="string") return blob; // cloud photo URL
   const u=URL.createObjectURL(blob); urlCache.push(u); return u;
 }
 function clearURLs(){ urlCache.forEach(u=>{try{URL.revokeObjectURL(u)}catch(e){}}); urlCache=[]; }
@@ -1233,7 +1258,7 @@ $("#export-btn").addEventListener("click",async()=>{
     for(const it of items){
       out.items.push({id:it.id,section:it.section,category:it.category,name:it.name,
         color:it.color,fabric:it.fabric,vibe:it.vibe,createdAt:it.createdAt,wornDates:it.wornDates,
-        photo:await blobToDataURL(it.full),thumb:await blobToDataURL(it.thumb)});
+        photo:await photoToDataURL(it.full),thumb:await photoToDataURL(it.thumb)});
     }
     const blob=new Blob([JSON.stringify(out)],{type:"application/json"});
     const a=document.createElement("a");
@@ -1244,16 +1269,54 @@ $("#export-btn").addEventListener("click",async()=>{
     toast("Backup downloaded ✓");
   }catch(e){ toast("Backup failed"); }
 });
+async function photoToDataURL(src){
+  if(!src) return null;
+  const blob = typeof src==="string"
+    ? await (await fetch(src,{credentials:"include"})).blob()
+    : src;
+  return blobToDataURL(blob);
+}
+$("#logout-btn").addEventListener("click",async()=>{
+  $("#menu-pop").classList.remove("open");
+  try{ await fetch(API+"/api/logout",{method:"POST",credentials:"include"}); }catch(e){}
+  location.reload();
+});
 
 /* ================= Init ================= */
 (async function init(){
-  try{ await dbOpen(); }
-  catch(e){
-    document.body.innerHTML="<p style='padding:40px;font-size:17px'>This app needs IndexedDB, which isn't available here.</p>";
-    return;
-  }
+  let me = null;
+  try{
+    const r = await fetch(API + "/api/me", { credentials:"include" });
+    if (r.ok) me = await r.json();
+  }catch(e){}
+  if(!me){ showLogin(); return; }
+  S.user = me;
   go("closet");
 })();
+
+function showLogin(){
+  $("#app").innerHTML = `<div class="loginwrap"><div class="logincard">
+    <h2>My Closet</h2><p>Sign in to your closet</p>
+    <input id="login-user" type="text" placeholder="Username" autocomplete="username" autocapitalize="none">
+    <input id="login-pass" type="password" placeholder="Password" autocomplete="current-password">
+    <div id="login-err"></div>
+    <button id="login-go">Sign in</button></div></div>`;
+  const submit = async ()=>{
+    const username = $("#login-user").value.trim(), password = $("#login-pass").value;
+    $("#login-err").textContent = "";
+    if(!username || !password){ $("#login-err").textContent = "Enter username and password"; return; }
+    try{
+      const r = await fetch(API + "/api/login", { method:"POST", credentials:"include",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ username, password }) });
+      if(!r.ok){ $("#login-err").textContent = r.status===429 ? "Too many tries — wait a bit and retry" : "Wrong username or password"; return; }
+      location.reload();
+    }catch(e){ $("#login-err").textContent = "Can't reach the server — check your connection"; }
+  };
+  $("#login-go").addEventListener("click", submit);
+  $("#login-pass").addEventListener("keydown", e=>{ if(e.key==="Enter") submit(); });
+  setTimeout(()=>$("#login-user").focus(), 50);
+}
 </script>
 </body>
 </html>
