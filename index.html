@@ -502,7 +502,7 @@ function svgFlat(x,y,s,c){
     <polygon points="${x+44*s},${y-13*s} ${x+50*s},${y-9*s} ${x+44*s},${y-5*s} ${x+38*s},${y-9*s}" fill="${INKc}"/></g>`;
 }
 function svgHeel(x,y,s,c){
-  return `<g><rect x="${x+1*s}" y="${y-2*s}" width="7*s" height="14*s" fill="${INKc}"/>
+  return `<g><rect x="${x+1*s}" y="${y-2*s}" width="${7*s}" height="${14*s}" fill="${INKc}"/>
     <polygon points="${x},${y} ${x+52*s},${y} ${x+58*s},${y-11*s} ${x+38*s},${y-26*s} ${x+12*s},${y-22*s}" fill="${c}" stroke="${INKc}" stroke-width="3" stroke-linejoin="round"/>
     <line x1="${x}" y1="${y}" x2="${x+52*s}" y2="${y}" stroke="${INKc}" stroke-width="3"/></g>`;
 }
