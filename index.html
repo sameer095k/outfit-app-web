@@ -81,7 +81,7 @@ body{
 #tabbar button{
   flex:1; border:none; background:none; cursor:pointer; color:var(--muted);
   font-size:15px; font-weight:600; display:flex; flex-direction:column;
-  align-items:center; justify-content:center; gap:5px; min-height:var(--tab-h);
+  align-items:center; justify-content:center; gap:7px; min-height:var(--tab-h);
 }
 #tabbar button .dot{width:13px; height:13px; border-radius:50%; border:2.5px solid currentColor;}
 #tabbar button.active{color:var(--ink);}
@@ -446,49 +446,53 @@ function zonePill(cx,y,label){
 function closetSVG(counts){
   const hid=k=>S.hiddenSecs.has(k)?' class="zone hidden-sec"':' class="zone"';
   const n=k=>counts[k]||0;
+  // pills collected separately and painted last so illustration never covers them
+  const P=[];
+  const pill=(cx,y,label)=>P.push(`<g class="zlabel"><rect x="${cx-52}" y="${y}" width="104" height="24" rx="12" fill="#fffdf6" stroke="${INKc}" stroke-width="2.5"/><text x="${cx}" y="${y+17}" text-anchor="middle" font-size="12.5" font-weight="800" fill="${INKc}" font-family="inherit">${label}</text></g>`);
+  pill(200,86,"BAGS · "+n("bags"));
+  pill(200,258,"TOPS · "+n("tops"));
+  pill(92,442,"BOTTOMS · "+n("bottoms"));
+  pill(219,442,"JACKETS · "+n("jackets"));
+  pill(330,442,"DRESSES · "+n("dresses"));
+  pill(92,530,"HIJAB · "+n("hijab"));
+  pill(240,530,"JEWELRY · "+n("jewelry"));
+  pill(200,576,"SHOES · "+n("shoes"));
   return `<svg id="closet-svg" viewBox="0 0 400 660" role="img" aria-label="Walk-in closet">
   <rect x="14" y="14" width="372" height="632" rx="22" fill="#efe6d4" stroke="${INKc}" stroke-width="3.5"/>
   <rect x="14" y="470" width="372" height="176" rx="0" fill="#e3d5bc"/>
   <!-- BAGS -->
   <g data-sec="bags"${hid("bags")}><rect class="zonehit" x="14" y="14" width="372" height="120" fill="transparent"/>
     ${svgBag(60,44,64,48,"#c96f4a")}${svgBag(168,50,56,42,"#3d4e6d")}${svgBag(268,44,64,48,"#8a8b5c")}
-    <rect x="34" y="118" width="332" height="10" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/>
-    ${zonePill(200,86,"BAGS · "+n("bags"))}</g>
+    <rect x="34" y="118" width="332" height="10" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/></g>
   <!-- TOPS -->
   <g data-sec="tops"${hid("tops")}><rect class="zonehit" x="14" y="134" width="372" height="150" fill="transparent"/>
     <rect x="34" y="150" width="332" height="9" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/>
-    ${svgHanger(52,159,52,92,"#c96f4a")}${svgHanger(122,159,52,92,"#a3b18a")}${svgHanger(192,159,52,92,"#d49a94")}${svgHanger(262,159,52,92,"#3d4e6d")}${svgHanger(332-52,159,52,92,"#d9b98f")}
-    ${zonePill(200,258,"TOPS · "+n("tops"))}</g>
+    ${svgHanger(52,159,52,92,"#c96f4a")}${svgHanger(122,159,52,92,"#a3b18a")}${svgHanger(192,159,52,92,"#d49a94")}${svgHanger(262,159,52,92,"#3d4e6d")}${svgHanger(332-52,159,52,92,"#d9b98f")}</g>
   <!-- BOTTOMS -->
   <g data-sec="bottoms"${hid("bottoms")}><rect class="zonehit" x="14" y="284" width="150" height="180" fill="transparent"/>
-    ${svgPants(40,306,56,120,"#2b2b2b")}${svgPants(104,312,56,114,"#3d4e6d")}
-    ${zonePill(92,442,"BOTTOMS · "+n("bottoms"))}</g>
+    ${svgPants(40,306,56,120,"#2b2b2b")}${svgPants(104,312,56,114,"#3d4e6d")}</g>
   <!-- JACKETS -->
   <g data-sec="jackets"${hid("jackets")}><rect class="zonehit" x="164" y="284" width="110" height="180" fill="transparent"/>
     <rect x="172" y="300" width="94" height="8" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/>
-    ${svgHanger(180,308,40,66,"#8a8b5c")}${svgHanger(228,308,40,66,"#2b2b2b")}
-    ${zonePill(219,442,"JACKETS · "+n("jackets"))}</g>
+    ${svgHanger(180,308,40,66,"#8a8b5c")}${svgHanger(228,308,40,66,"#2b2b2b")}</g>
   <!-- DRESSES -->
   <g data-sec="dresses"${hid("dresses")}><rect class="zonehit" x="274" y="284" width="112" height="180" fill="transparent"/>
-    ${svgDress(288,320,44,116,"#d49a94")}${svgDress(340,326,44,110,"#c96f4a")}
-    ${zonePill(330,442,"DRESSES · "+n("dresses"))}</g>
+    ${svgDress(288,320,44,116,"#d49a94")}${svgDress(340,326,44,110,"#c96f4a")}</g>
   <!-- HIJAB -->
   <g data-sec="hijab"${hid("hijab")}><rect class="zonehit" x="14" y="464" width="150" height="100" fill="transparent"/>
     <rect x="40" y="500" width="100" height="20" rx="6" fill="#a3b18a" stroke="${INKc}" stroke-width="2.5"/>
     <rect x="46" y="480" width="88" height="20" rx="6" fill="#d49a94" stroke="${INKc}" stroke-width="2.5"/>
-    <rect x="52" y="460" width="76" height="20" rx="6" fill="#d9b98f" stroke="${INKc}" stroke-width="2.5"/>
-    ${zonePill(92,530,"HIJAB · "+n("hijab"))}</g>
+    <rect x="52" y="460" width="76" height="20" rx="6" fill="#d9b98f" stroke="${INKc}" stroke-width="2.5"/></g>
   <!-- JEWELRY -->
   <g data-sec="jewelry"${hid("jewelry")}><rect class="zonehit" x="164" y="464" width="110" height="100" fill="transparent"/>
     <rect x="180" y="512" width="120" height="9" fill="${WOODc}" stroke="${INKc}" stroke-width="2.5"/>
     <circle cx="205" cy="496" r="11" fill="#c96f4a" stroke="${INKc}" stroke-width="2.5"/>
     <circle cx="240" cy="496" r="11" fill="#3d4e6d" stroke="${INKc}" stroke-width="2.5"/>
-    <circle cx="275" cy="496" r="11" fill="#8a8b5c" stroke="${INKc}" stroke-width="2.5"/>
-    ${zonePill(240,530,"JEWELRY · "+n("jewelry"))}</g>
+    <circle cx="275" cy="496" r="11" fill="#8a8b5c" stroke="${INKc}" stroke-width="2.5"/></g>
   <!-- SHOES -->
   <g data-sec="shoes"${hid("shoes")}><rect class="zonehit" x="14" y="564" width="372" height="82" fill="transparent"/>
-    ${svgShoe(50,622,1.1,"#2b2b2b")}${svgShoe(130,622,1.1,"#d49a94")}${svgShoe(210,622,1.1,"#3d4e6d")}${svgShoe(290,622,1.1,"#d9b98f")}
-    ${zonePill(200,576,"SHOES · "+n("shoes"))}</g>
+    ${svgShoe(50,622,1.1,"#2b2b2b")}${svgShoe(130,622,1.1,"#d49a94")}${svgShoe(210,622,1.1,"#3d4e6d")}${svgShoe(290,622,1.1,"#d9b98f")}</g>
+  ${P.join("")}
   </svg>`;
 }
 
@@ -535,14 +539,14 @@ async function renderZone(v, items, secKey){
       :`<div class="empty"><div class="big">🪹</div><p>No ${esc(sec.label.toLowerCase())} yet.<br>Add your first piece.</p>
         <button class="btn" id="add-in-zone">＋ Add</button></div>`}
     <div style="height:10px"></div>
-    <button class="btn secondary block" id="add-in-zone2">＋ Add to ${esc(sec.label)}</button>
+    ${list.length?`<button class="btn secondary block" id="add-in-zone2">＋ Add to ${esc(sec.label)}</button>`:""}
     </div>`;
   $("#zone-back").addEventListener("click",()=>{S.zone=null;renderCloset();});
   $("#zone-filter").addEventListener("click",()=>openZoneFilter(secKey));
   v.querySelectorAll("[data-item]").forEach(c=>c.addEventListener("click",()=>openItemDetail(c.dataset.item)));
   const add=()=>openAddItem(secKey);
   const a1=$("#add-in-zone"); if(a1)a1.addEventListener("click",add);
-  $("#add-in-zone2").addEventListener("click",add);
+  const a2=$("#add-in-zone2"); if(a2)a2.addEventListener("click",add);
 }
 function openZoneFilter(secKey){
   const sec=secOf(secKey), f=S.zoneTagFilter;
